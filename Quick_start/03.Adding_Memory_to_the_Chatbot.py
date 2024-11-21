@@ -50,7 +50,6 @@ llm = select_model()
 llm_with_tools = llm.bind_tools(tools)
 
 def chatbot(state: State):
-    #llm.invoke에서 llm_with_tools.invoke로 변경
     return {"messages": [llm_with_tools.invoke(state["messages"])]}
 
 graph_builder.add_node("chatbot", chatbot)
