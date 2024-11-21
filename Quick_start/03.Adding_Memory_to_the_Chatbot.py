@@ -9,9 +9,11 @@ from langchain_community.tools.tavily_search import TavilySearchResults
 from typing_extensions import TypedDict
 
 from langgraph.graph.message import add_messages
+from langchain_core.messages import AIMessage
 from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_core.messages import ToolMessage
-import json
+
+from langgraph.checkpoint.memory import MemorySaver
+
 
 # Load API_key from .env file
 from config_loader import ConfigLoader
@@ -31,6 +33,8 @@ def select_model():
     print(f"You selected {model_name}.")
     return llm_instance
     
+####Adding Memory to the Chatbot
+memory = MemorySaver()
 
 # From QuickStart https://langchain-ai.github.io/langgraph/tutorials/introduction/#setup
 ########################################################################
@@ -45,90 +49,67 @@ tools = [tool]
 llm = select_model()
 llm_with_tools = llm.bind_tools(tools)
 
-
-class BasicToolNode:
-    """A node that runs the tools requested in the last AIMessage."""
-
-    def __init__(self, tools: list) -> None:
-        self.tools_by_name = {tool.name: tool for tool in tools}
-
-    def __call__(self, inputs: dict):
-        if messages := inputs.get("messages", []):
-            message = messages[-1]
-        else:
-            raise ValueError("No message found in input")
-        outputs = []
-        for tool_call in message.tool_calls:
-            tool_result = self.tools_by_name[tool_call["name"]].invoke(
-                tool_call["args"]
-            )
-            outputs.append(
-                ToolMessage(
-                    content=json.dumps(tool_result),
-                    name=tool_call["name"],
-                    tool_call_id=tool_call["id"],
-                )
-            )
-        return {"messages": outputs}
-    
-def route_tools(state: State):
-    if isinstance(state, list):
-        ai_message = state[-1]
-    elif messages := state.get("messages", []):
-        ai_message = messages[-1]
-    else:
-        raise ValueError(f"No messages found in input state to tool_edge: {state}")
-    if hasattr(ai_message, "tool_calls") and len(ai_message.tool_calls) > 0:
-        return "tools"
-    return END
-
-
 def chatbot(state: State):
     #llm.invoke에서 llm_with_tools.invoke로 변경
     return {"messages": [llm_with_tools.invoke(state["messages"])]}
 
 graph_builder.add_node("chatbot", chatbot)
-
 tool_node = ToolNode(tools=[tool])
 graph_builder.add_node("tools", tool_node)
-
 graph_builder.add_conditional_edges(
     "chatbot",
-    route_tools,
-    {"tools":"tools", END:END}
+    tools_condition,
 )
-
 graph_builder.add_edge("tools", "chatbot")
 graph_builder.add_edge(START, "chatbot")
-graph = graph_builder.compile()
+###*****add New*****
+graph = graph_builder.compile(checkpointer=memory)
 
 ########################################################################
 
-def stream_graph_updates(user_input: str):
-    for event in graph.stream({"messages": [("user", user_input)]}):
-        for value in event.values():
-            print("Assistant:", value["messages"][-1].content)
+
+def stream_graph_updates_simple(user_input: str, user_memory: str):
+    config = {"configurable": {"thread_id": user_memory}}
+    for event in graph.stream({"messages": [("user", user_input)]},config, stream_mode="values"):
+        last_value = list(event.values())[-1]
+        if isinstance(last_value, list):
+            last_message = last_value[-1]
+            if isinstance(last_message, AIMessage):
+                print(f"AI Message_{user_memory}: {last_message.content}") 
 
 def main():
+    user_input = input("User memory number ? : ")
+    current_memory = user_input
+    print(f"You are using memory {current_memory}")
+
+
+
     print("Type 'quit', 'exit', or 'q' to exit.")
+    print("Type '1', '2', or '3' to change memory.")
+
     while True:
-        user_input = input("User: ")
-        if user_input.lower() in {"quit", "exit", "q"}:
-            print("Goodbye!")
-            break
         try:
-            stream_graph_updates(user_input)
+            user_input = input("User: ")
+            if user_input.lower() in {"quit", "exit", "q"}:
+                print("Goodbye!")
+                break
+
+            if user_input in ["1", "2"]:
+                new_memory = int(user_input)
+                if new_memory != current_memory:
+                    print(f"Switching to memory {new_memory}")
+                    current_memory = new_memory
+                continue
+        
+            stream_graph_updates_simple(user_input, current_memory)
+
         except Exception as e:
             print(f"Error occurred: {e}")
             break
 
-
-
-
 # Run chatbot
 if __name__ == "__main__":
     main()
-    
     #Draw the graph
     # from IPython.display import Image, display
     # try:
