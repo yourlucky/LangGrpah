@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 
 class ConfigLoader:
-    def __init__(self, env_path=".env"):
+    def __init__(self, env_path="../.env"):
         """
         Initialize the ConfigLoader and load the environment variables.
         :param env_path: Path to the .env file relative to the current directory.
