@@ -14,7 +14,6 @@ from langgraph.prebuilt import ToolNode, tools_condition
 
 from langgraph.checkpoint.memory import MemorySaver
 
-
 # Load API_key from .env file
 from config_loader import ConfigLoader
 config = ConfigLoader()
