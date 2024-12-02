@@ -38,12 +38,17 @@ builder = StateGraph(AgentState)
 builder.add_node("RealEstateAgent", node.RealEstateAgent_node)
 builder.add_node("BudgetRecorder", node.budget_node)
 builder.add_node("RoomRecorder", node.room_node)
+builder.add_node("TourDateRecorder", node.tour_node)
 builder.add_node("RelationshipBuilder", node.RelationshipBuilder_node)
+
 
 builder.add_edge(START, "RealEstateAgent")
 builder.add_conditional_edges("RealEstateAgent", lambda state: state["next"])
+
 builder.add_edge("BudgetRecorder","RelationshipBuilder")
 builder.add_edge("RoomRecorder","RelationshipBuilder")
+builder.add_edge("TourDateRecorder","RelationshipBuilder")
+
 builder.add_edge("RelationshipBuilder",END)
 
 #graph = builder.compile()
@@ -79,9 +84,9 @@ def main():
 if __name__ == "__main__":
     main()
 
-    #from IPython.display import Image
-    #img = Image(graph.get_graph().draw_mermaid_png())
-    #with open("output_pilot.png", "wb") as f:
+    # from IPython.display import Image
+    # img = Image(graph.get_graph().draw_mermaid_png())
+    # with open("output_pilot.png", "wb") as f:
     #    f.write(graph.get_graph().draw_mermaid_png())
 
 
