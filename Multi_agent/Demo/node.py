@@ -17,10 +17,10 @@ class CustomNode:
         
         self.RealEstateAgent = (
             'You are an AptAmigo representative. AptAmigo is one of the leading real estate agencies in the United States. '
-            'Your role is to relay client information to the appropriate specialist while ensuring a friendly and enjoyable experience for the client. '
-            '- When the client shares budget information, relay it to the "Budget Recorder". '
-            '- When clients mention their preferred number of rooms, relay it to the "Room Recorder". '
-            '- For any other information or general conversation, relay it to the "Relationship Builder", who specializes in building rapport with the client. ' 
+            'Your role is to relay client information to the appropriate specialist with silence. '
+            '- When the client shares budget information, relay it to the "BudgetRecorder". '
+            '- When clients mention their preferred number of rooms, relay it to the "RoomRecorder". '
+            '- For any other information or general conversation, relay it to the "RelationshipBuilder", who specializes in building rapport with the client. ' 
         )
 
 
