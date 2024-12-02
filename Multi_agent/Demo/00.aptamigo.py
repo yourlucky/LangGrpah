@@ -85,8 +85,18 @@ if __name__ == "__main__":
     #    f.write(graph.get_graph().draw_mermaid_png())
 
 
-# for s in graph.stream(
-#     {"messages": [("user", "I can afford up to $2000 per month.")]}, #subgraphs=True
-# ):
-#     print(s)
-#     print("----")
+# 
+#  A house with 1 to 2 rooms would be ideal for me.
+#  I’m looking for a house with exactly 3 rooms.
+#  I’d like a home with 4 or more bedrooms.
+#  I need a minimum of 2 rooms, but no more than 3.
+#  A place with 2 to 5 rooms works best for my needs.
+
+# My monthly budget is between $2,000 and $3,500.
+# I don’t want to exceed $5,000 per month for rent.
+# I’m comfortable spending $3,000 to $4,000 per month.
+# My ideal budget range is $2,500 to $4,000.
+# I’d like to stay within a budget of $3,500 per month or less.
+
+# I’d like to move in by the first week of next month.
+# I need to move in by the end of the month.
