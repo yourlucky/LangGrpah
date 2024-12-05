@@ -11,42 +11,33 @@ from langgraph.prebuilt import create_react_agent
 from langgraph.graph import MessagesState
 from langgraph.checkpoint.memory import MemorySaver
 
-from node import CustomNode
+from node import CustomNode,AgentState
 
 # Load API_key from .env file
 from config_loader import ConfigLoader
 config = ConfigLoader()
 
-# The agent state is the input to each node in the graph
-class AgentState(MessagesState):
-    # The 'next' field indicates where to route to next
-    next: str
-
-
 llm = ChatAnthropic(model="claude-3-5-sonnet-20240620")
 node = CustomNode(llm)
 memory = MemorySaver()
 
-#members = ["BudgetRecorder", "RoomRecorder"]
-members=node.get_node_list()
-
-# and decides when the work is completed
-options = members+["FINISH"]
-
 builder = StateGraph(AgentState)
 
 builder.add_node("RealEstateAgent", node.RealEstateAgent_node)
-builder.add_node("BudgetRecorder", node.budget_node)
-builder.add_node("RoomRecorder", node.room_node)
+builder.add_node("BudgetRecorder", node.Budget_node)
+builder.add_node("RoomRecorder", node.Room_node)
+builder.add_node("TourDateRecorder", node.Tour_node)
 builder.add_node("RelationshipBuilder", node.RelationshipBuilder_node)
 
 builder.add_edge(START, "RealEstateAgent")
 builder.add_conditional_edges("RealEstateAgent", lambda state: state["next"])
+
 builder.add_edge("BudgetRecorder","RelationshipBuilder")
 builder.add_edge("RoomRecorder","RelationshipBuilder")
+builder.add_edge("TourDateRecorder","RelationshipBuilder")
+
 builder.add_edge("RelationshipBuilder",END)
 
-#graph = builder.compile()
 graph = builder.compile(checkpointer=memory)
 
 
@@ -61,7 +52,6 @@ def stream_graph_updates(user_input: str):
         print(f"AptAmigo: {last_message.content}")
     
         
-
 def main():
     print("Welcome to the AptAmigo Chatbot Demo!")
     while True:
@@ -79,9 +69,9 @@ def main():
 if __name__ == "__main__":
     main()
 
-    #from IPython.display import Image
-    #img = Image(graph.get_graph().draw_mermaid_png())
-    #with open("output_pilot.png", "wb") as f:
+    # from IPython.display import Image
+    # img = Image(graph.get_graph().draw_mermaid_png())
+    # with open("output_pilot.png", "wb") as f:
     #    f.write(graph.get_graph().draw_mermaid_png())
 
 
