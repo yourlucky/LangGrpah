@@ -1,6 +1,5 @@
 # Multi-Agent Example Branch
-
-This branch was created specifically for **information sharing with Sam Chris Ting**.  
+ 
 It contains various examples demonstrating the operation of **Multi-Agent systems**.
 
 
@@ -24,6 +23,7 @@ By default, it uses the path env_path="../../.env" on line 5. Modify the path if
 
 1_Demo_4node
 In 0.main_chat.py, uncomment line 48 and enable lines 49–52.
+
 2_Two_Sub_tree
 In 0.main_chat.py, enable line 89.
 
