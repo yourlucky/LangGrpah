@@ -2,6 +2,8 @@ from langchain_core.messages import HumanMessage
 from langgraph.graph import MessagesState
 from langgraph.prebuilt import create_react_agent
 from langgraph.graph import END
+from langchain_openai import ChatOpenAI
+
 
 from typing import Literal, Union
 from typing_extensions import TypedDict
@@ -12,8 +14,8 @@ class AgentState(MessagesState):
     next: str
 
 class CustomNode:
-    def __init__(self, llm):
-        self.llm = llm
+    def __init__(self):
+        self.llm = ChatOpenAI(model_name="gpt-4o")
         self.node_list =["BudgetRecorder", "RoomRecorder","RelationshipBuilder","TourDateRecorder"]
         
         self.RealEstateAgent = (
@@ -27,7 +29,7 @@ class CustomNode:
 
 
         self.BudgetRecorder = create_react_agent(
-            llm,
+            self.llm,
             tools=[],
             state_modifier=(
                 "You are a Budget Recorder. Your task is to extract the maximum budget from the user's input "
@@ -81,7 +83,7 @@ class CustomNode:
         )
 
         self.RoomRecorder = create_react_agent(
-            llm,
+            self.llm,
             tools=[],
             state_modifier=
                 "You are a Room Recorder. Your task is to extract the minimum and maximum number "
@@ -138,7 +140,7 @@ class CustomNode:
         )
 
         self.TourDateRecorder = create_react_agent(
-            llm,
+            self.llm,
             tools=[],
             state_modifier=
                 "You are a Tour Date Recorder. Your task is to extract the desired tour dates mentioned by the user "
@@ -188,7 +190,7 @@ class CustomNode:
 
 
         self.RelationshipBuilder = create_react_agent(
-            llm,
+            self.llm,
             tools=[],
             state_modifier=
             "You are a Relationship Builder. Your role is to engage in brief, friendly conversation with the client, "

@@ -18,7 +18,9 @@ from config_loader import ConfigLoader
 config = ConfigLoader()
 
 llm = ChatAnthropic(model="claude-3-5-sonnet-20240620")
-node = CustomNode(llm)
+#llm = ChatOpenAI(model_name="gpt-4o")
+
+node = CustomNode()
 memory = MemorySaver()
 
 builder = StateGraph(AgentState)
@@ -43,7 +45,8 @@ graph = builder.compile(checkpointer=memory)
 
 def stream_graph_updates(user_input: str):
     config = {"configurable": {"thread_id": "1"}}
-    for event in graph.stream({"messages": [("user", user_input)]},config, stream_mode="values"):
+    
+    for event in graph.stream({"messages": [("user", user_input)]}, config, stream_mode="values"):
         #detail print
         #print(event)
         last_event = event
